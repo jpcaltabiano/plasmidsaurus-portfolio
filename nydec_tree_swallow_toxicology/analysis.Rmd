@@ -1,0 +1,151 @@
+---
+title: "NYSDEC tree swallows"
+author: "Joseph Caltabiano"
+date: "11/24/2020"
+output: html_document
+---
+
+Referenced paper:
+  "The effect of PFAS on the morphological and behavioral status of insect-eating birds"
+  Vincent Sorrentino, 2020, Taylor Science Center, Hamilton College
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyr)
+library(tidyverse)
+library(dplyr)
+library(data.table)
+library(ggplot2)
+library(lme4)
+```
+
+```{r}
+data = read.csv('swallows_sample.csv')[1:28,] # mean data from our study
+ex.data = read.csv('example_data.csv') # data from thesis study
+# names(data) # get column names
+```
+
+```{r}
+format_data = function(df) {
+  df = data
+  # select the subset of columns for data collected at hatch, convert the data to double format, and make into data.frame
+  # the numbers represent the column indexes from the original data
+  # separation by age lets us concatenate
+  df.hatch = data.frame(sapply(subset(df, select=c(7, 10, 13, 16, 19, 22)), as.double))
+  # add a column of 1's to represent age
+  df.hatch = data.frame(df.hatch, rep(1, nrow(df.hatch)))
+  
+  df.day7  = data.frame(sapply(subset(df, select=c(8, 11, 14, 17, 20, 23)), as.double))
+  df.day7 = data.frame(df.day7, rep(7, nrow(df.day7)))
+  
+  df.day12 = data.frame(sapply(subset(df, select=c(9, 12, 15, 18, 21, 24)), as.double))
+  df.day12 = data.frame(df.day12, rep(12, nrow(df.day12)))
+  
+  # rename col names
+  names(df.hatch) = c("w", "billl", "billw", "billd", "headl", "tarsl", "age")
+  names(df.day7)  = c("w", "billl", "billw", "billd", "headl", "tarsl", "age")
+  names(df.day12) = c("w", "billl", "billw", "billd", "headl", "tarsl", "age")
+  
+  # add a column for the site string, then drop all rows containing N/A values
+  df = drop_na(data.frame(df[,1], rbind(df.hatch, df.day7, df.day12)))
+  names(df)[1] = "site" # rename first column to site
+  return(df)
+}
+
+format_example = function(df) {
+  # select columns of interest
+  df = data.frame(subset(df, select=c(12, 13, 14, 15, 16, 19, 6)))
+  
+  # rename col names
+  names(df) = c("billl", "billw", "billd", "headl", "tarsl", "w", "bird")
+  
+  # convert all numerical data from string to double
+  df[,1:6] = sapply(df[,1:6], as.double)
+  
+  # drop rows with NA and empty values
+  df = drop_na(data.frame(df))
+  
+  # select only data for blue birds
+  return( df[df[1:270,]$bird %like% "luebird",1:6] )
+}
+
+data = format_data(data)
+ex.data = format_example(ex.data)
+```
+
+```{r}
+# Computes the first principal component
+# @param df: a data.frame
+# @return: a data.frame with 2 columns: x = structural size, y = weight
+get_pcomp = function(df) {
+  # set random seed for consistency in results
+  set.seed(1)
+  
+  # compute principal components and print results
+  pr.out = prcomp(df, scale. = T)
+  print(summary(pr.out))
+  
+  # set struct.size to the first principal component vector
+  struct.size = pr.out$x[,1]
+  
+  # add struct.size as a column to the data
+  lr.df = data.frame(df, struct.size)
+  
+  # compute regression and print out results summary
+  lr.out = lm(lr.df$w ~ poly(lr.df$struct.size, 2), data=lr.df)
+  print(summary(lr.out))
+  
+  # return a data set with 2 columns: x = structural size, y = weight
+  return( data.frame(x = lr.df$struct.size, y = lr.df$w) )
+}
+
+# Plot structural size vs weight and regression line of weight~(structural size)^2
+# @param df: a data.frame
+plot_struct_size = function(df) {
+  ggplot(data=df, aes(x,y)) +
+         geom_point() +
+         geom_smooth(method="lm", formula=y~poly(x,2))
+}
+
+# Computes the residuals of the regression of weight~(structural size)^2
+# @param df: a data.frame
+# @return: a vector containing the residuals
+get_residuals = function(df) {
+  model = lm(y~poly(x,2), data=df)
+  pred = predict(model,data=df)
+  res = residuals(model)
+  return( res )
+}
+```
+
+```{r}
+# Thesis data
+df = get_pcomp(ex.data)
+plot_struct_size(df)
+body_condition = get_residuals(df)
+```
+
+```{r}
+# Our data
+df = get_pcomp(data[,2:7])
+plot_struct_size(df)
+body_condition = get_residuals(df)
+boxplot(body_condition~data$site)
+```
+
+```{r}
+data$id = seq.int(nrow(data))
+# An example of how lmer() can be used to generate the different linear mixed models in the paper
+# Note - site and age are treated as random effects (using the | syntax) and id as fixed in the example, reverse of the paper
+# It seems lmer() considers random effects as the grouping variables
+# Link to the documentation for the lmer() function: https://www.rdocumentation.org/packages/lme4/versions/1.1-26/topics/lmer
+# Additionally, the function REML() from the package lmerTest as referenced in the paper does not exist
+#   lmerTest package docs: https://cran.r-project.org/web/packages/lmerTest/lmerTest.pdf
+# A helpful paper on using R to evaluate significance in linear mixed models:
+#   https://link.springer.com/article/10.3758/s13428-016-0809-y
+lmix = lmer(body_condition ~ (1|data$site) + (1|data$age) + data$id, REML=T)
+
+summary(lmix)
+coef(lmix)
+```
+
