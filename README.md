@@ -23,6 +23,23 @@ The pipeline ran nightly and was deployed using Terraform and GitHub Actions for
 #### Sample tagging chart
 In a separate project at Mammoth, I built a standalone visualization tool to help scientists identify unannotated samples lacking experimental metadata. The chart dynamically showed the number of untagged samples per user, with interactive features like hover highlights to help users quickly spot gaps in annotation. This helped improve data integrity and guided scientists toward cleaner downstream analysis. I made this chart using D3.js running in a React component.
 
+### Conservation International, contracted via Earth Genome
+
+[Link](https://medium.com/earthrisemedia/not-just-ai-7107967eb26a)
+
+I worked with Earth Genome on a project aimed at using AI to make Conservation International's deforestation research more accessible to a wider audience. I contributed to the development of an AI-powered chat system that helped users interact with complex research on climate change and conservation. 
+
+The project had a series of sprints, where we worked on building multiple prototypes that explored how AI could provide personalized, context-aware insights into scientific papers and datasets. My primary responsibility was leading the development of the "Research Paper Chat," a conversational interface powered by OpenAI's Assistants API. 
+
+Key contributions:
+- Designed and developed the user-facing chat interface that allowed users to engage with multiple chat personas (e.g., researchers, policymakers, teachers) and query papers in natural language, including citations with links to the research cited
+- Built features to tailor responses to specific needs, including adjusting for creativity, length, and grade level for educational use
+- Integrated dynamic response generation grounded in real research papers, complete with clickable citations for further exploration
+- Refined the user experience to ensure intuitive and efficient interactions, even for complex environmental topics
+
+Through this project, I was able to contribute directly to making scientific research more accessible and engaging, while taking responsibility end to end for a public-facing tool.
+
+
 ### NYC Health Violations Map
 
 [Link](https://jpcaltabiano.github.io/final//)
