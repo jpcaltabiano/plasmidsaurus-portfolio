@@ -37,7 +37,7 @@ The site includes:
 
 While this was an academic project, it served as a valuable end-to-end exercise in using D3 for data-driven storytelling and browser-based interface design. We focused on getting interactivity and data integration working across views, despite limited time and experience.
 
-### C02 Emissions Map
+### CO2 Emissions Map
 
 [Link](https://jpcaltabiano.github.io/04-Remix/)
 
