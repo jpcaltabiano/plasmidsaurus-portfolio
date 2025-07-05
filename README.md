@@ -2,7 +2,6 @@
 Thank you for your consideration for the Product Engineer role.  
 The projects below highlight my experience building interactive data visualizations using React, D3.js, and Python-based tools. While some projects were collaborative or part of larger systems, I’ve consistently taken initiative on the design and implementation of key components, often building from scratch or working independently on distinct features. These examples show my ability to translate complex biological data into clear, usable interfaces, with a focus on usability, performance, and scientific accuracy.
 
-## Professional experience
 ### Mammoth Biosciences
 My most relevant work was done at Mammoth. Unfortunately, it involves internal IP that I cannot share directly, but I’ve included a summary below and would be happy to discuss details further.
 
